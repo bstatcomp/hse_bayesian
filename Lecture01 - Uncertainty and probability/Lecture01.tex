@@ -44,14 +44,14 @@ What is probability?
 
 \end{frame}
 
-\begin{frame}{I think that:}
+\begin{frame}{I think that...}
 
 \begin{Large}
 \begin{itemize}
-\item Probability is fundamental to statistical practice.
-\item However, the important part is understanding probability as a tool for expressing uncertainty...
-\item ...while the calculus and algebra of mathematical manipulations are practically almost irrelevant.
-\item Practitioners of statistics are too often scared away by the mathematics of probability.
+\item probability is a language for expressing uncertainty.
+\item Like any language it has rules, but the rules of probability are very simple.
+\item Non-mathematicians are too often scared away by the mathematics of computing with probabilistic objects.
+\item Good news: the calculus and algebra of mathematical manipulations are practically almost irrelevant.
 \end{itemize}
 \end{Large}
 \end{frame}
@@ -61,15 +61,18 @@ What is probability?
 
 \bigskip
 
+\textbf{The goal of this lecture are to think about and discuss the following:}
+
+\bigskip
 \begin{itemize}\itemsep1.2em
 
 \item The main task of statistics (and life) is making decisions in the presence of uncertainty.
 
-\item Probability is a formal language for describing uncertainty.
+\item Probability is a formal language for expressing uncertainty.
 
-\item Probability is not that complicated - it's actually quite natural and the bare minimum we need to understand eachother.
+\item Probability is actually quite natural and the bare minimum we need to understand each other.
 
-\item Probability distributions are like words - the more you know, the more expressive you can be.
+\item Probability distributions are like expressions in a language - the more you know, the more expressive you can be.
 
 \end{itemize}
 
@@ -100,7 +103,15 @@ What is probability?
 \end{center}
 \end{frame}
 
-
+\begin{frame}{}
+\centering
+\bigskip
+\bigskip
+\smallskip
+\begin{LARGE}
+{\color{red} Q:} What will the temperature ($^\circ$C) be in Moscow at midnight?
+\end{LARGE}
+\end{frame}
 
 \begin{frame}{Important observations}
 
@@ -110,7 +121,7 @@ What is probability?
 
 \item Uncertainty is part of everyday life...
 
-\item ... we've even developed natural language to express it!
+\item we've even developed natural language to express it!
 
 \item However, natural language is imprecise, incoherent and lacks expressiveness...
 
@@ -129,7 +140,7 @@ Conclusion: \textbf{We need to agree on a more formal language for expressing un
 
 \begin{frame}{Formal definition of probability}
 
-\begin{scriptsize}
+\begin{small}
 
 
 \bigskip
@@ -150,22 +161,15 @@ A probability function $P$ a function $P:S \rightarrow [0,1]$ that satisfies the
 \item[A3] $P(A_1 \cup A_2 \cup A_3 \cup ...) = \sum_{i=1}^\infty P(A_i), \break \text{for any sequence of disjunct events}.$
 \end{description}
 
+\end{small}
+
 \smallskip
 \textbf{Why is probability defined like this and not something else?}
-\end{scriptsize}
+
 
 \end{frame}
 
 
-\begin{frame}{}
-\centering
-\bigskip
-\bigskip
-\smallskip
-\begin{LARGE}
-{\color{red} Q:} What will the temperature ($^\circ$C) be in Moscow at midnight?
-\end{LARGE}
-\end{frame}
 
 \begin{frame}{Distributions}
 
@@ -210,7 +214,7 @@ $X \sim Bernoulli(p)$
 \end{frame}
 
 \begin{frame}{Normal distribution}
-\centering
+\begin{center}
 
 $X \sim N(\mu, \sigma^2)$
 
@@ -224,6 +228,16 @@ $X \sim N(\mu, \sigma^2)$
 
 {\color{red} Q:} What was the temperature ($^\circ$C) in Moscow exactly 50 years ago?
 \bigskip
+\pause
+\end{center}
+\begin{scriptsize}
+What is the cause of uncertainty in the second case?
+
+\vspace{-0.3cm}
+
+What are some other common causes of uncertainty?
+\end{scriptsize}
+
 \end{frame}
 
 \begin{frame}{Beta distribution}
@@ -262,10 +276,9 @@ Assume that these are independent tosses of a (possibly unfair) coin:
 \begin{frame}{Summary}
 
 \begin{itemize}
-\item Probability theory is a precise and coherent language for expressing uncertainty.
-\item If we don‘t follow the rules of probability, others won‘t understand what we are saying!
-\item However, we‘ve never said that probabilistic opinions have to be objective or even sensible.
-\item We find it natural to have probabilistic opinions about properties that are arguably not random. This is inherently Bayesian!
+\item Probability theory is a precise language for expressing uncertainty.
+\item If we don‘t follow the rules of probability, others won‘t understand what we are saying! However, probability doesn't require us to be objective or even sensible.\footnote{For example, it's quite coherent to say that the world will end tomorrow with 0.99999 probability and there's a 0.00001 probability that it won't. But saying that there is a 0.99999 probability that it won't and 0.00002 probability that it will - that just doesn't make sense.}
+\item And we find it natural to have probabilistic opinions about properties that are arguably not random.\footnote{This is inherently Bayesian!}
 \end{itemize}
 \end{frame}
 
