@@ -1,0 +1,287 @@
+\input{../LecturesCommon/preamble.tex}
+
+\title[Probabilistic thinking]{Probabilistic thinking}
+
+\begin{document}
+
+\begin{frame}
+
+
+\bigskip
+\centering
+\includegraphics[width=0.40\linewidth]{../LectureAssets/L01/Lecture01cartoon}
+
+\bigskip
+
+\end{frame}
+
+\input{../LecturesCommon/titleSlide.tex}
+
+\begin{frame}{Would you agree or disagree?}
+
+\begin{LARGE}
+Probability is fundamental to statistical practice. 
+\end{LARGE}
+
+\bigskip
+
+Understanding probability is key to understanding statistical models and how to fit and interpret them.
+
+\end{frame}
+
+\begin{frame}{}
+\centering
+
+\bigskip
+
+\bigskip
+
+\smallskip
+
+\begin{Huge}
+What is probability?
+\end{Huge}
+
+\end{frame}
+
+\begin{frame}{I think that:}
+
+\begin{Large}
+\begin{itemize}
+\item Probability is fundamental to statistical practice.
+\item However, the important part is understanding probability as a tool for expressing uncertainty...
+\item ...while the calculus and algebra of mathematical manipulations are practically almost irrelevant.
+\item Practitioners of statistics are too often scared away by the mathematics of probability.
+\end{itemize}
+\end{Large}
+\end{frame}
+
+
+\begin{frame}{Probabilistic thinking}
+
+\bigskip
+
+\begin{itemize}\itemsep1.2em
+
+\item The main task of statistics (and life) is making decisions in the presence of uncertainty.
+
+\item Probability is a formal language for describing uncertainty.
+
+\item Probability is not that complicated - it's actually quite natural and the bare minimum we need to understand eachother.
+
+\item Probability distributions are like words - the more you know, the more expressive you can be.
+
+\end{itemize}
+
+\bigskip
+
+\end{frame}
+
+
+\begin{frame}{}
+\centering
+
+\bigskip
+
+\bigskip
+
+\smallskip
+
+\begin{LARGE}
+{\color{red} Q:} Will it rain in Moscow next Tuesday?
+\end{LARGE}
+
+\end{frame}
+
+
+\begin{frame}{Natural language has support for expressing uncertainty}
+\begin{center}
+\includegraphics[width=0.95\linewidth]{../LectureAssets/L01/questionnaire}
+\end{center}
+\end{frame}
+
+
+
+\begin{frame}{Important observations}
+
+\bigskip
+
+\begin{itemize}\itemsep1.2em
+
+\item Uncertainty is part of everyday life...
+
+\item ... we've even developed natural language to express it!
+
+\item However, natural language is imprecise, incoherent and lacks expressiveness...
+
+\item which makes it useless for serious quantitative work.
+
+\end{itemize}
+
+\bigskip
+
+Conclusion: \textbf{We need to agree on a more formal language for expressing uncertainty!}
+
+\bigskip
+
+\end{frame}
+
+
+\begin{frame}{Formal definition of probability}
+
+\begin{scriptsize}
+
+
+\bigskip
+
+Set of outcomes \textbf{$\Omega$} (set of all possible truths).
+
+\smallskip
+
+Set of events \textbf{$S$}  (all sets that we will assign probability to\footnote{The formalism used here is a $\sigma-$algebra.}).
+
+\bigskip
+
+A probability function $P$ a function $P:S \rightarrow [0,1]$ that satisfies the axioms of probability:
+
+\begin{description}
+\item[A1] $P(A) \geq 0, $ for all $A \in S$.
+\item[A2] $P(\Omega) = 1.$
+\item[A3] $P(A_1 \cup A_2 \cup A_3 \cup ...) = \sum_{i=1}^\infty P(A_i), \break \text{for any sequence of disjunct events}.$
+\end{description}
+
+\smallskip
+\textbf{Why is probability defined like this and not something else?}
+\end{scriptsize}
+
+\end{frame}
+
+
+\begin{frame}{}
+\centering
+\bigskip
+\bigskip
+\smallskip
+\begin{LARGE}
+{\color{red} Q:} What will the temperature ($^\circ$C) be in Moscow at midnight?
+\end{LARGE}
+\end{frame}
+
+\begin{frame}{Distributions}
+
+\begin{columns}[c]
+\column{3in}
+\centering
+\includegraphics[width=0.90\linewidth]{../LectureAssets/L01/distributions}
+
+\column{2in}
+\begin{small}
+\bigskip
+
+Probability distributions are the elementary expressions of probabilistic thinking and
+the basic building blocks of statistical models.
+
+\bigskip
+
+\bigskip
+
+Distributions follow the axioms of probability and are therefore coherent and precise statements.
+
+\end{small}
+
+\end{columns}
+
+\bigskip
+
+\end{frame}
+
+
+\begin{frame}{Bernoulli distribution}
+\centering
+
+$X \sim Bernoulli(p)$
+
+\includegraphics[width=0.50\linewidth]{../LectureAssets/L01/dist_C}
+
+\bigskip
+\pause
+{\color{red} Q:} Will it rain in Moscow next Tuesday?
+\bigskip
+\end{frame}
+
+\begin{frame}{Normal distribution}
+\centering
+
+$X \sim N(\mu, \sigma^2)$
+
+\includegraphics[width=0.50\linewidth]{../LectureAssets/L01/dist_N}
+
+\bigskip
+\pause
+{\color{red} Q:} What will the temperature ($^\circ$C) be in Moscow at midnight?
+\pause
+\bigskip
+
+{\color{red} Q:} What was the temperature ($^\circ$C) in Moscow exactly 50 years ago?
+\bigskip
+\end{frame}
+
+\begin{frame}{Beta distribution}
+\centering
+
+$X \sim Beta(\alpha, \beta)$
+
+\includegraphics[width=0.50\linewidth]{../LectureAssets/L01/dist_B}
+
+\bigskip
+
+\bigskip
+\end{frame}
+
+
+\begin{frame}{Tricky questions}
+
+Assume that these are independent tosses of a (possibly unfair) coin:
+
+\begin{center}
+\textbf{T  T  H  T  T  H  T  T  T  H} {\color{red}(?)}
+\end{center}
+
+\begin{small}
+\bigskip
+\begin{itemize}
+\item {\color{red} Q1:} Will the 11th flip be heads or tails?\pause
+\item {\color{red} Q2:} What is the coin‘s probability of landing heads?\pause
+\item {\color{red} Q3:} Is this coin practically fair (is its probability between 49\% and 51\%)?
+\end{itemize}
+\end{small}
+\bigskip
+\end{frame}
+
+
+\begin{frame}{Summary}
+
+\begin{itemize}
+\item Probability theory is a precise and coherent language for expressing uncertainty.
+\item If we don‘t follow the rules of probability, others won‘t understand what we are saying!
+\item However, we‘ve never said that probabilistic opinions have to be objective or even sensible.
+\item We find it natural to have probabilistic opinions about properties that are arguably not random. This is inherently Bayesian!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Further reading}
+
+See [HOFF:Ch02], [BDA:Ch01] for more on Bayesian probability. For a more thorough understanding of Bayesian probability, in particular, how axioms of probability and conditional probability follow from rationally avoiding being a sure loser in a betting game, see [POU:Ch01].
+
+\bigskip
+
+\begin{scriptsize}
+\begin{itemize}
+\item[BDA] Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., \& Rubin, D. B. (2013). Bayesian data analysis. CRC press.
+\item[HOFF] Hoff, P. D. (2009). A first course in Bayesian statistical methods. New York: Springer.
+\item [POU] Kadane, J. B. (2011). Principles of uncertainty. CRC Press.
+\end{itemize}
+\end{scriptsize}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,88 @@
+\documentclass{beamer} %[handout]
+\usetheme{CambridgeUS}
+\usecolortheme{whale}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage[makeroom]{cancel}
+\usepackage{graphicx} 
+\setbeamercolor{frametitle}{fg=black}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+
+\usetikzlibrary{shapes}
+
+\usetikzlibrary{decorations.text}
+
+\lstset{frame=tb,
+  language=R,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\tiny\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+%  keywordstyle=\color{blue},
+%  identifierstyle=\color{yellow},
+  breaklines=true,
+    literate={->}{$\rightarrow$}{2}
+           {°}{$\epsilon$}{1},
+  breakatwhitespace=true
+  tabsize=3
+}
+
+\usetikzlibrary{arrows,positioning} 
+\tikzset{
+    %Define standard arrow tip
+    >=stealth',
+    %Define style for boxes
+    punkt/.style={
+           rectangle,
+           rounded corners,
+           draw=black, very thick,
+           text width=6.5em,
+           minimum height=2em,
+           text centered},
+    % Define arrow style
+    pil/.style={
+           ->,
+           thick,
+           shorten <=2pt,
+           shorten >=2pt,}
+}
+
+\makeatletter
+\def\th@mystyle{%
+    \normalfont % body font
+    \setbeamercolor{block title example}{bg=orange,fg=white}
+    \setbeamercolor{block body example}{bg=orange!20,fg=black}
+    \def\inserttheoremblockenv{exampleblock}
+  }
+\makeatother
+\theoremstyle{mystyle}
+\newtheorem*{remark}{Example}
+
+\makeatletter
+\def\th@mystylet{%
+    \normalfont % body font
+    \setbeamercolor{block title example}{bg=purple,fg=white}
+    \setbeamercolor{block body example}{bg=purple!20,fg=black}
+    \def\inserttheoremblockenv{exampleblock}
+  }
+\makeatother
+\theoremstyle{mystylet}
+\newtheorem*{analysis}{Example}
+
+\date{}
+\author[Bayesian statistics]{Erik \v{S}trumbelj\\2019}
+
+\linespread{1.2}
+\renewcommand{\thefootnote}{\roman{footnote}}
+%\setbeameroption{show notes}
