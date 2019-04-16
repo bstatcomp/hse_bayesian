@@ -145,11 +145,11 @@ Conclusion: \textbf{We need to agree on a more formal language for expressing un
 
 \bigskip
 
-Set of outcomes \textbf{$\Omega$} (set of all possible truths).
+Set of outcomes \textbf{$\Omega$} (set of all possible truths, sample space).
 
 \smallskip
 
-Set of events \textbf{$S$}  (all sets that we will assign probability to\footnote{The formalism used here is a $\sigma-$algebra.}).
+Set of events \textbf{$S$}  (all subsets of $\Omega$ that we will assign probability to\footnote{The formalism used here is a $\sigma-$algebra.}).
 
 \bigskip
 
@@ -280,6 +280,40 @@ Assume that these are independent tosses of a (possibly unfair) coin:
 \item If we don‘t follow the rules of probability, others won‘t understand what we are saying! However, probability doesn't require us to be objective or even sensible.\footnote{For example, it's quite coherent to say that the world will end tomorrow with 0.99999 probability and there's a 0.00001 probability that it won't. But saying that there is a 0.99999 probability that it won't and 0.00002 probability that it will - that just doesn't make sense.}
 \item And we find it natural to have probabilistic opinions about properties that are arguably not random.\footnote{This is inherently Bayesian!}
 \end{itemize}
+\end{frame}
+
+
+\begin{frame}{\begin{large}If I had just one more slide on probability, this is what I'd write on it\end{large}}
+
+\begin{scriptsize}
+
+\textbf{Definition of conditional probability:}
+
+$$ P(A|B) = \frac{P(AB)}{P(B)} $$
+
+\textbf{Marginal probability and Bayes' theorem:}
+
+Let $\mathcal{H} = \{H_1,..., H_n\}$ be a partition such that $P(\mathcal{H}) = 1$. For any event $E$: $P(E) = \sum_{i=1}^n P(E H_i)$ and
+
+$$P(H_i | E) = \frac{P(H_iE)}{P(E)} = \frac{P(E | H_i)P(H_i)}{P(E)}=\frac{P(E | H_i)P(H_i)}{\sum_{j=1}^n P(E | H_j)P(H_j)}.$$
+
+\textbf{Definition of independence and conditional independence:}
+
+A and B are independent $\Leftrightarrow$ $P(AB) = P(A)P(B)$
+
+A and B are cond. independent given C $\Leftrightarrow$ $P(AB|C) = P(A|C)P(B|C)$
+
+Note: Independence does not imply conditional independence (or vice versa).
+
+\smallskip
+
+\textbf{For continuous distributions:}
+
+$p(x|y) = \frac{p(x, y)}{p(y)}$, $p(x) = \int p(x, y) dy$, independence: $p(x,y) = p(x)p(y)$...
+
+
+\end{scriptsize}
+
 \end{frame}
 
 \begin{frame}{Further reading}
