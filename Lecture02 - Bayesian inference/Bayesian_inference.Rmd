@@ -1,0 +1,397 @@
+---
+title: "Bayesian inference"
+output: 
+  html_document:
+    toc: yes
+  html_notebook:
+    theme: united
+    toc: yes
+---
+    
+Our running example will be a basketball player shooting free-throws (1 = made shot, 0 = missed shot):
+
+```{r}
+y <- c(0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1)
+print(y)
+cat(sprintf("The player made %d out of %d shots.\n", sum(y), length(y)))
+```
+
+We want to infer the player's ability to shoot free-throws. In particular:
+
+* Is the player a better that 75% free-throw shooter?
+* What is the probability that he will successfuly make his next shot?
+
+# Human inference
+
+For a moment, let's completely forget about statistical inference and focus on how we do inference. While we are not made for precise calculation, we can be quite good at approximate reasoning.
+
+How would we answer these questions after we observe the above data?
+
+**Is the player a better that 75% free-throw shooter?**
+
+**What is the probability that he will successfuly make his next shot?**
+
+**What would our answers be before we observed any shot?**
+
+**How about after observing just the first 0?**
+
+**0 1?**
+
+**0 1 1?**
+
+**On what implicit assumptions to we base our answers?**
+
+# Statistical inference - data and model
+
+The main goal of applied statistics is to infer useful information from data by providing a statistial interpretation of the underlying process. Such information reduces our uncertainty and helps us make decisions.
+
+### Data are a window into the process that interests us
+
+A common source of statistical mistakes is not understanding that the goal is to infer the properties of the underlying process not the properties of the data. For example, even though the basketball player has successfuly made two thirds of the shots, it does not mean that the is a 66.6% free-throw shooter.
+
+Because we reason about the underlying process with a finite sample, there is always a certain degree of uncertainty in our conclusions. Yes, in most cases a larger sample implies a smaller uncertainty, but that is what statistics is all about - evaluating how much uncertainty is left.
+
+**If you get a certain answer with statistical analysis, you're doing something wrong! :)**
+
+### There is no modelling without a model
+
+In order to do any kind of inference of the *properties of the process* from *the data*, we have to assume a relationship between the two - **a model**. A model can be viewed as a hypothesis about how the data were generated. 
+
+Even though the choice of model is often implicit in the choice of test, library, algorithm..., every statistical analysis assumes a model. For example, what does a t-test assume? How about linear regression?
+
+We should keep in mind that the goa of a statistical model is not necessarily to completely mimic the underlying process of interest. The goal is only to provide a (useful) statistical interpretation of the process. As George E. P. Box once wrote:
+
+**Now it would be very remarkable if any system existing in the real world could be exactly represented by any simple model. However, cunningly chosen parsimonious models often do provide remarkably useful approximations. For example, the law PV = RT relating pressure P, volume V and temperature T of an "ideal" gas via a constant R is not exactly true for any real gas, but it frequently provides a useful approximation and furthermore its structure is informative since it springs from a physical view of the behavior of gas molecules. For such a model there is no need to ask the question "Is the model true?". If "truth" is to be the "whole truth" the answer must be "No". The only question of interest is "Is the model illuminating and useful?".**
+
+This paragraph is often paraphrased as:
+
+**All models are wrong, but some are useful.**
+
+The process of statistical analysis is often iterative - starting with a simpler model and then expanding it as we find areas where it fails to properly model the data.
+
+### Parametric models
+
+Models can be very simple or very complex. Simple models are easier to understand and deal with computationally but complex models may provide more information.
+
+The most common approach in statistical modelling is to assume that the data were generated from a particular distribution. And, in order to gain some flexibility, we leave some parts (parameters) of the distribution unknown. Our model (hypothesis about the data generating process) is then a parametrized family of distributions and we refer to this approach as **parametric modelling**. For example, a t-test and linear regression are both parametric models.
+
+In this course we focus exclusively on parametric models, which are the most commonly used approach in applied statistics. In some fields, however, semi-parametric (for example, Gaussian Processes) or non-parametric models (nearest neighbors, decision trees) are more common. In particular, where it is difficult or expensive to obtain the background knowledge that is necessary to propose a parametric model (for example, image/video/sound analysis, natural language processing).
+
+**Everything we have discussed so far, applies to all applied statistical analysis, whether it be Bayesian or not, statistical or machine learning, etc.**
+
+### What would be a sensible model for free-throw shooting?
+
+I propose a model based on the following hypothesis: Each basketball player has an unknown free-throw shooting ability $\theta \in (0,1)$. For each shot he attempts, he has a $\theta$ chance of making that shot. Therefore, we assume that the player's ability does not vary over time and that shots are independent.
+
+**Q: Does this choice make sense? Can you suggest an alternative model?**
+
+### It's time to do some probabilistic thinking
+
+Most of us are in most cases just users of statistical models. We choose a model based on some best-practices, what we see others use, or purely based on what is readily available to us. However, **in this course we will explicitly describe every model we use.**
+
+**Why?**
+
+* To practice probabilistic thinking.
+* Explicitly stating a model makes us think about the underlying assumptions we are making. Many statistical errors arise because applied statisticians do not understand what they are applying.
+* Once you are comfortable with this level of statistical thinking, you can easily modify models for a particular scenario or even propose new statistical models.
+* **And it's really not as difficult as it might seem! :)**
+
+In our case, the data are binary
+
+$$y_i \in \{0,1\}, i = 1..n,$$
+
+so it makes sense to assume a model that generates binary data. The simplest such distribution and one that we already know is the Bernoulli distribution (or we may look at all the data as a sample from $n$ Bernoulli's, which would be a Binomial distribution).
+
+Let's assume that the following will provide a useful interpretation of the free-throw shooting process: Each individual shot's success is generated from a Bernoulli distribution with probability $\theta$, where theta is between 0 and 1:
+
+$$Y_i = y_i|\theta \sim_\text{i.i.d.} Bernoulli(\theta). $$
+In other words, we choose to model it as the flip of a coin that has probability $\theta$ of landing heads.
+
+The above description is precise and complete - we could now do inference with it. In practice, when we have to do our own derivations, the description can be expanded as
+
+$$P(Y_1 = y_1, ... , Y_n = y_n|\theta) = \prod_{i=1}^n P(Y_i = y_i|\theta) = \prod_{i=1}^n \theta^{y_i}(1-\theta)^{1 - y_i}$$
+
+The short description is precise and complete and more than enough for probabilistic thinking and building your own models. An understanding of the expanded description is only necessary if you want to work on methodological advancements in computation, deriving some properties of your model, or for probability theory and mathematical statistics courses.
+
+As we can see the function $L(\theta; y) = p(y|\theta)$ contains all our modelling assumptions on the relationship between the data and the parameters. This function is called the **likelihood function** or just the likelihood. Although it is based on distributions, it is not a density/probability function when the parameter is treated as the argument. We will use terms model, likelihood, and data generating process interchangeably.
+
+# The Bayesian approach
+
+We've described our data and defined our model
+
+$$Y_i = y_i|\theta \sim_\text{i.i.d.} Bernoulli(\theta). $$
+
+Now it is time to do inference.
+
+First, we will take the Bayesian approach and then we will contrast it with two most common alternatives: maximum likelihood estimation and Null-Hypothesis Significance Testing (NHST).
+
+The following view is the basis for Bayesian statistics and the key philosophical difference between Bayesian statistics and classical (frequentist) statistics: **Probability is a tool for expressing uncertainty and not (just) a long-term property of random experiments.**
+
+In our case, this would manifest itself as: I'm interested in $\theta$. It is completely reasonable to assume that $\theta$ is a constant, but I don't know what its value is, so **I choose to represent my uncertainty in $\theta$'s value with a distribution** and treat $\theta$ as a random variable. As a Bayesian, I will always treat my parameters as random variables!
+
+### Bayesian inference
+
+The only unknowns in parametric inference are the parameters and we can derive all other quantities of interest from the distribution of the parameters. For example, is the player a better than 75% free-throw shooter:
+
+$$P(\theta > 0.75) = \int_{0.75}^1 p(\theta).$$
+
+So, as a Bayesian, I'm primarily interested in computing $p(\theta|y)$ - the probabilistic opinion about the parameters **after I have seen the data**. This is known as the **posterior density/distribution** or just the **posterior**.
+
+In theory, the posterior distribution is easy to compute. All we have to do is apply the Bayes theorem (hence the name):
+
+$$p(\theta|y) = \frac{p(y, \theta)}{p(y)} = \frac{p(y|\theta)p(\theta)}{p(y)} = \frac{p(y|\theta)p(\theta)}{\int p(y|\theta)p(\theta) d\theta} \propto p(y|\theta)p(\theta)$$
+
+In practice, however, it is often infeasible or even impossible to derive the integral in the denominator analytically. We will have to observe just the shape of the posterior and use numerical approaches, such as MCMC. However, we will for now ignore this issue and we will later rely on computers to do the job for us.
+
+If we observe more carefully, we require only two elements to compute the posterior distribution:
+
+* The **likelihood** $p(y|\theta)$, which is uniquely determined by our choice of model, and
+* the **prior** opinion about the parameters $p(\theta)$, which we haven't discussed yet.
+
+### Choosing a prior for our analysis 
+
+To express a probabilistic opinion about $\theta$, we choose
+
+$$\theta \sim Beta(a_0, b_0).$$
+
+Why?
+
+* The Beta distribution is the natural first choice for expressing probabilistic opinions about things that take values on the 0-1 interval.
+* The Beta distribution is very flexible:
+
+```{r,fig.height = 3, fig.width = 5}
+library(ggplot2)
+a0 <- 1; b0 <- 1 # theta is around 0.5 (just one possible opinion)
+x  <- seq(0, 1, 0.01)
+xx <- data.frame(x = x, y = dbeta(x, a0, b0))
+
+ggplot(xx, aes(x = x, y = y)) + geom_line() + ylab("Beta density") + ylim(0, NA)
+```
+
+* It is the **conjugate** prior for the Bernoulli likelihood. What does that mean? The posterior will turn out to be Beta as well! This is useful for online updating of the model and also computationally convenient.
+
+#### Computation
+
+$$y_i|\theta \sim_\text{i.i.d.} Bernoulli(\theta).$$
+$$\theta \sim Beta(a_0, b_0).$$
+
+For the above model and prior choice, the posterior density is
+
+$$\theta | y_1,...,y_n \sim Beta(a_0 + \sum y_i, b_0 + n - \sum y_i).$$
+
+We'll do this derivation by hand, but we could have just as easily looked it up on Wikipedia or any other reference on conjugate priors.
+
+In most cases, however, we won't be able to derive the posterior analytically (nor do we want to). Instead, we will use computers and MCMC algorithms to sample from the posterior.
+
+### Applying the model to our free-throw example
+
+Our data:
+
+```{r}
+print(y)
+```
+
+We will use a uniform prior on $\theta$:
+
+```{r,fig.height = 3, fig.width = 5}
+a0 <- 1; b0 <- 1
+x  <- seq(0, 1, 0.01)
+xx <- data.frame(x = x, y = dbeta(x, a0, b0), type = "prior") 
+xx <- rbind(xx, data.frame(x = x, y = dbeta(x, a0 + sum(y), b0 + length(y) - sum(y)), type = "posterior") )
+
+ggplot(xx, aes(x = x, y = y, group = type, colour = type)) + geom_line() + xlab("theta") + ylab("density")
+
+# we can also easily get Bayesian confidence intervals:
+qbeta(0.05, a0 + sum(y), b0 + length(y) - sum(y)) # lower bound of the one-tailed 95% CI
+
+```
+
+Once we have obtained our posterior distribution, we can use it to answer our questions.
+
+**Is the player a better that 75% free-throw shooter?**
+
+Answering this question only requires us to integrate the posterior from 0.75 to 1.0:
+
+```{r,fig.height = 3, fig.width = 5}
+1 - pbeta(0.75, a0 + sum(y), b0 + length(y) - sum(y))
+```
+
+This also illustrates how in Bayesian statisitcs the decision-making is decoupled from the inference. If the decision-maker chooses a different criterion, for example, a better than 50% free-throw shooter, we don't have to redo the inference. This is not true for NHST or maximum likelihood-based approaches.
+
+**What is the probability that he will successfuly make his next shot?**
+
+We are not certain what the probability of success might be. On the contrary, our posterior density represents an opinion over all possible probabilities. Subsequently, our opinion on the success of the next shot is also a mixture of all these opinions:
+
+$$P(y_{new} = 1 | y) = \int P(y_{new}=1 | \theta) p(\theta|y) d\theta = \int \theta p(\theta|y) d\theta. $$
+This integral is basically the expected value of $\theta$. We can compute it exactly by intergration or by using the known expression for the expected value of the Beta distribution:
+
+```{r,fig.height = 3, fig.width = 5}
+(a0 + sum(y)) / (a0 + sum(y) + b0 + length(y) - sum(y))
+```
+
+Or we can do a Monte Carlo simulation of drawing samples from our opinion about $\theta$ and averaging them:
+```{r,fig.height = 3, fig.width = 5}
+set.seed(0)
+mean(rbeta(100000, a0 + sum(y), b0 + length(y) - sum(y)))
+```
+
+### With enough data, the likelihood dominates over the prior
+
+The data in this example are drawn from Bernoulli(0.5). The example illustrates how larger samples move our posterior closer to the true value of 0.5, regardless of what our prior might be. Stronger priors away from 0.5 will take more data (evidence) to move, but all of them will eventually concentrate around 0.5.
+
+```{r,fig.height = 3, fig.width = 5}
+a0 <- 10; b0 <- 100
+x  <- seq(0, 1, 0.01)
+xx <- data.frame(x = x, y = dbeta(x, a0, b0), type = "prior") 
+set.seed(0)
+smp <- sample(0:1, 1000, rep = T)
+xx <- rbind(xx, data.frame(x = x, y = dbeta(x, a0 + sum(smp[1:10]), b0 + length(smp[1:10]) - sum(smp[1:10])), type = "n = 10") )
+xx <- rbind(xx, data.frame(x = x, y = dbeta(x, a0 + sum(smp[1:100]), b0 + length(smp[1:100]) - sum(smp[1:100])), type = "n = 100") )
+xx <- rbind(xx, data.frame(x = x, y = dbeta(x, a0 + sum(smp[1:1000]), b0 + length(smp[1:1000]) - sum(smp[1:1000])), type = "n = 1000") )
+
+ggplot(xx, aes(x = x, y = y, group = type, colour = type)) + geom_line() + xlab("theta") + ylab("density") + geom_vline(xintercept = 0.5, lty = "dashed", colour = "red")
+```
+
+# Alternative: Null-Hypothesis Significance Testing (NHST)
+
+### How well do we understand NHST?
+
+Imagine a scenario where we are testing the effects of a treatment with a new drug on one of the patient's properties. We record the relative improvement after treatment for 12 patients and we are primarily interested if the expected improvement is positive. We can assume that there were no flaws in the experimental design (random sampling of patients and there are no external biases - and change in mean is only due to treatment).
+
+```{r}
+set.seed(0)
+x <- rnorm(12, 0.5)
+round(x, 2)
+t.test(x, alt = "greater")
+```
+
+Which of the following statements are true?
+
+1. We have disproved the null hypothesis that the treatment has 0 effect.
+
+2. We have found the probability of the null hypothesis being true.
+
+3. We have proved the alternative hypothesis that the treatment has a positive effect.
+
+4. We have found the probability of the alternative hypothesis being true.
+
+5. If we decide to reject the null hypothesis, we have found the probability that we are making an incorrect decision.
+
+6. The true mean lies in the interval $(0.2, \infty)$ with $95\%$ probability.
+
+### Our example - a Binomial test for proportions
+
+**Is the player a better that 75% free-throw shooter?**
+
+We can use R's built-in exact test for binomial proportions.
+
+```{r}
+binom.test(sum(y), length(y), alt = "greater", p = 0.75)
+```
+
+Or we can do it ourselves and gain a better understanding of how NHST works.
+
+The model (likelihood) assumed by the binomial test for proportions is, of course, binomial.
+
+$$P(\sum Y_i = k|\theta) = \binom{n}{k} \theta^{k}(1-\theta)^{n-k}$$
+
+It's not that difficult to check that this likelihood is the same as the one we used for the Bayesian model. This can also be derived from the fact that the binomial distribution is the sum of $n$ independent Bernoulli distributed random variables with same $\theta$.
+
+NHST always follows the same steps: we assume a model (likelihood) and the null hypothesis, we choose a test statistic, we compute the distribution of the test statistic under the null hypothesis, and, finally, we compute the p-value - the probability of obtaining a test statistic such as the one in our sample (or more extreme). If the p-value is small, we opt to reject the null-hypothesis.
+
+The above procedure might feel somewhat unnatural and against our desire to just get an estimate of where $\theta$ might lie. The main reason for such an approach is the fundamental assumption that probabilities are properties of random processes and can not just be assigned to anything. As such, we may not treat $\theta$ as a random variable (it is clearly a constant in our modelling assumptions) and subsequently we can't ask probabilistic question about $\theta$. For example, the questions $P(\theta > 0.75)$ or $P(\theta > 0.75|y)$ (what do you think about $\theta$ before and after you see the data) are not valid questions in the classical non-Bayesian view on probability.
+
+The obvious choice for the null-hypothesis in our case is $\theta = 0.75$ and a natural choice for the test statistic is the number of observed made shots.
+
+```{r}
+p <- 0
+for (k in 8:12) {
+  p <- p + dbinom(k, 12, p = 0.75)
+}
+p
+```
+
+The probability of getting such a sample if H0 is true is very high. I will not reject the null hypothesis. I decide that the player is not a better than 75% free-throw shooter.
+
+**Does my decision make sense? What guarantees do I get from the test?**
+
+
+### NHST violate the likelihood principle
+
+NHST results depend not only on the data but also on how the experiment was designed. For example, how we decided to stop gathering more data.
+
+As such, they violate the likelihood principle - the principle that results of inference should only depend on the data through the likelihood (and not on any external factors). This can lead to some interesting situations:
+
+https://en.wikipedia.org/wiki/Likelihood_principle
+
+Bayesian methods respect the likelihood principle. This makes Bayesian methods much easier to apply in settings where we need incremental (online) learning. For example, in adaptive clinical trial design.
+
+# Alternative: Maximum Likelihood (ML) estimation
+
+As the name implies, ML inference is based on finding the parameter value that maximizes the likelihood - $\theta_{ML} = \arg\max_{\theta} p(y|\theta)$ - the parameter value, under which the observed data are most likely. But this should not be confused with the Bayesian approach of finding the most probable value of the parameter (although the two often coincide, in particular, when we have enough data and the likelihood dominates the Bayesian prior);
+
+$$p(\theta|y) \propto p(y|\theta)p(\theta)$$
+
+In our practical example:
+
+```{r,fig.height = 3, fig.width = 5}
+library(ggplot2)
+
+likelihood <- function(theta, y) {
+  prod(theta^y * (1 - theta)^(1-y))
+}
+
+# plot the likelihood function for some theta
+x <- seq(0, 1, 0.01)
+z <- NULL
+for (theta in x) {
+  z <- rbind(z, data.frame(theta = theta, likelihood = likelihood(theta, y)))
+}
+
+ggplot(z, aes(x = theta, y = likelihood)) + geom_point() + geom_line()
+
+```
+
+We could read approximately what the optimal value of $\theta$ is from this plot, but this is a typical optimization problem, so we can let the computer do it for us:
+
+```{r,fig.height = 3, fig.width = 5}
+
+# in practice, we typically maximize (minimize) the (minus) log-likelihood, which is equivalent but numerically more stable
+lik_optim <- function(theta, y) {
+  -sum(y * log(theta) + (1 - y) * log(1 - theta))
+}
+
+res <- optim(par = 0.5, lower = 0.01, upper = 0.99, fn = lik_optim, method = "L-BFGS-B", y = y)
+cat(sprintf("Maximum likelihood estimate = %.3f\n", res$par))
+
+```
+
+Such point-estimates carry less information than posterior densities - there is no measure of uncertainty. This makes ML-based inference more prone to overfitting than Bayesian methods. However, ML approaches are probably still used more commonly than Bayesian methods because the optimization computation part of ML is practically easier to deal with than the integration computation part of Bayesian methods. There is also a Bayesian alternative to ML called Maximum A-Posteriori or MAP - finding the maximum of the posterior $\theta_{MAP} = \arg\max_{\theta} p(y|\theta)p(\theta)$.
+
+We can also compute confidence intervals for ML estimates. Here, we'll use a normal approximation, which is not ideal for small samples and discrete likelihoods, but will do to illustrate the point:
+
+```{r,fig.height = 3, fig.width = 5}
+mu <- res$par
+mu + qnorm(0.05, 0, 1) * sqrt(mu * (1-mu) / length(y)) # lower bound of one-tailed CI
+```
+
+# Exercise: Poisson-Gamma
+
+We have data on the number of goals scored from different European football leagues. For each game of each league we record the number of goals scored.
+
+```{r}
+dat <- read.csv("../Code/Datasets/football.csv", sep = ",", h = T)
+dat$Goals <- dat$FTHG + dat$FTAG
+ggplot(dat, aes(x = Goals, fill = Div)) + geom_histogram(binwidth = 1) + facet_wrap( ~ Div)
+```
+
+The Poisson-Gamma model is a reasonable first choice of model when modelling count data.
+
+$$y_i|\lambda \sim_\text{iid} Poisson(\lambda)$$
+$$\lambda \sim Gamma(a_0, b_0)$$
+The posterior for this model is
+
+$$\lambda|y_1,...,y_n \sim Gamma(a_0 + \sum y_i, b_0 + n)$$
+
+a. Use the above Poisson-Gamma model to estimate the expected number of goals per game in a league of your choice. What is the probability that the expected number of goals is greater than 2.5?
+b. Use the Poisson-Gamma model to compare the expected number of goals for two different leagues of your choice. That is, compute the probability that one league has a higher number of expected goals per game than the other.
