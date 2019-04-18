@@ -1,0 +1,277 @@
+---
+title: "Free-throw shooting"
+output: 
+  html_document:
+    toc: yes
+  html_notebook:
+    theme: united
+    toc: yes
+---
+  
+# A brief description of the study and data
+
+![reduced size rim](rim.jpg)
+
+During one of our research projects in sports analysis we analyzed how players adapt their shooting and how much their performance drops when the normal 45cm diameter rim is modified to a smaller 37cm diameter.
+
+Each of the 45 players took 60 free-throw shots with and 60 without the modified rim. We recorded whether the shot was made or missed and the release angle of the shot (using a "smart" ball).
+
+```{r}
+dat <- readRDS("../Code/Datasets/basketball_shots.rds")
+print(nrow(dat))
+print(summary(dat))
+round(tapply(dat$Made, list(dat$PlayerID, dat$SpecialRim), mean),2)
+
+```
+
+Some of the questions of interest were:
+
+* How well do these players shoot free throws?
+* Does their success rate fall when the rim is reduced?
+* Does their success rate fall (or rise) during the 60-shot series?
+
+# How well does a player shoot free throws
+
+We've already dealt with this problem in the previous lecture - it can be reduced to the problem of estimating the Binomial/Bernoulli proportion of a sample of 0s and 1s. We'll use the same model but we'll use Stan for inference, instead of computing the posterior by hand.
+
+### The modelling stage of the statistical analysis
+
+First, we need to think about our **data**. In this case, the data are very simple - we have $n$ binary variables. More formally and precisely:
+
+$$y_i \in \{0, 1\}, i = 1..n$$
+
+Next, we need to think about what we are interested in and about a **model** that links the quantity of interest to the data. Without such a model, we will not be able to infer anything from the data.
+
+The natural choice for binary data is the Bernoulli distribution. In fact, this is one of the rare cases where we have no other distributions to choose from. Binary data are always distributed Bernoulli. Of course, the probability may change from observation to observation, over time, etc. A formal description of the model (likelihood) we will use:
+
+$$y_i|\theta \sim_{iid} Bernoulli(\theta)$$
+
+The parameter $\theta$ in our model can be directly interpreted as the player's probability to successfully make a shot. As we can see from the formal description, we assume that the player's ability $\theta$ is the same for all shots. An alternative model where the ability may vary over time will be discussed and applied later. We also assume that the shots are independent.
+
+What remains is to choose an appropriate prior for $\theta$. In this case, we do not have much prior information, so we opt for a uniform prior:
+
+$$\theta \sim Beta(1, 1) \text{ or, equivalently } \theta \sim \text{Unif(0,1)}$$
+
+With this choice of prior we are essentially saying that we don't have any prior information and we will let the data speak for themselves.
+
+This completes the modelling stage. All the necessary components have been determined and we can procede to the computation.
+
+**Do these modelling choices make sense? Are they sufficiently argumented? Can we propose an alternative?** 
+
+### Describing our model in Stan
+
+In order to use Stan for computation, we need to first describe our model to Stan in the Stan probabilistic programming language. Learning a new programming language is never easy, but Stan is relatively simple and intuitive, as we will see.
+
+Although we can write Stan models in R code, it's good practice to write them in separate files with a .stan extension. Here, we load and display the above Bernoulli model in Stan:
+
+```{r}
+writeLines(readLines("bernoulli.stan"))
+```
+
+This is our first Stan model, so we have a lot to learn from it:
+
+* Stan code is organized in blocks which start with the block's name and the block's contents encapsulated in curly braces. There are 7 blocks and they need to be in this particular order: functions, data, transformed data, parameters, transformed parameters, model, generated quantities. Only the model block is mandatory. For now, we will only work with data, parameters and model blocks.
+
+* The **data** and **parameters** block are syntactically the same. The former describes the data while the latter the parameters, as their names suggest. Each element of the data and each parameter is represented by a programming variable.
+
+* **Variable names and types:** The names of the variables are alphanumeric and must start with a letter. In order for Stan to know precisely what we mean, we must define each variables type. Stan supports several types, but for now we will only need integers (int) and reals (real).
+
+* **Range constraints:** Sometimes additional constraints need to be used to precisely specify the support for a parameter. For example, $\theta$ is a real number, but must be between 0 and 1. We do this by adding a lower and upper range constraint. For deviation/variance parameters, for example, we would add only a <lower=0> constraint.
+
+* **Arrays and for-loops** These are the same as in R.
+
+* **Sampling statements** Describing the model and prior to Stan is almost identical to the statistical notation we are using. Stan supports all standard distributions and many non-standard ones. For a full list, check out the Stan manual.
+
+### The computation stage - let Stan do it
+
+Before we can use the Stan model, we first have to compile it. While this can be done simultaneously with using it (see *stan()* command) it is better to compile the model first and save the compiled binary. Compilation takes a bit of time, but only needs to be done once for each model. After that, we can use the model as many times as we like. We only have to recompile it if we modify it.
+
+```{r}
+library(rstan)
+if (!file.exists("./Temp/bernoulli.compiled")) {
+  bernoulli_compiled <- stan_model("bernoulli.stan")
+  saveRDS(bernoulli_compiled, file = "./Temp/bernoulli.compiled")
+} else {
+  bernoulli_compiled <- readRDS("./Temp/bernoulli.compiled")  
+}
+```
+
+The data are passed to the Stan model as a list. The names of the list elements need to be the same as the names of the variables in Stan. We'll estimate the shooting percentage of player 1 on the normal rim:
+
+```{r}
+y <- dat[dat$PlayerID == 1 & dat$SpecialRim == 0,]$Made
+stan_data <- list(y = y, n = length(y))
+stan_data
+```
+
+Now we are ready to compute the results! We do this with the *sampling()* function:
+
+```{r}
+samples <- sampling(bernoulli_compiled, data = stan_data,  # we supply the model and data
+                    chains = 1, iter = 1200, warmup = 200) # for now, we won' worry about these
+```
+
+### Interpreting the results
+
+Stan's computation is based on MCMC. That means that Stan gives us samples from our posterior distribution and not the posterior distribution itself. In the MCMC lecture we will learn why MCMC is the only option for general-purpose Bayesian statistics.
+
+Here are our 1000 samples from the posterior distribution of $\theta$:
+
+```{r}
+theta <- extract(samples)$theta
+hist(theta, breaks = 50)
+```
+
+If we are interested in a particular range of theta, we don't have to integrate. Instead, we just count. For example, what is the probability that this player is better than 75% free throw shooter?
+
+```{r}
+mean(theta > 0.75)
+```
+
+A thing that we must immediately learn before we make any mistakes is that Monte Carlo is an approximation method and as such introduces approximation error. Our estimates no longer just have uncertainty due to statistical reasons, but also due to sampling. Luckly, we can reduce approximation error by increasing the number of MCMC iterations. We can only reduce uncertainty in the parameters by gathering more data.
+
+I typically use the *mcse()* function from the *mcmcse* package:
+
+```{r}
+library(mcmcse)
+mcse(theta > 0.75)
+```
+So, the probability of him being a better than 75% free-throw shooter should be interpreted with this standard error due to MCMC in mind. The MCMC error is relatively low, so we can safely conclude that the probability that this player is a 75% free-throw shooter is very low.
+
+Stan also has built-in summary and plot functions:
+
+```{r}
+print(samples)
+```
+
+# Does shooting get worse with reduced rim size?
+
+We assume that a player's ability to make free-throws changes with reduced rim size. That is, the player has a different $\theta$ for normal and reduced rim. We will also assume that shots on the normal rim tell us nothing about the $\theta$ for the reduced rim (and vice versa).
+
+**Do these assumptions make sense?**
+
+With these assumptions, we are basically saying, that we can model the two thetas independently. We'll run the model twice, once for each set of shots:
+
+```{r}
+# normal rim
+y <- dat[dat$PlayerID == 1 & dat$SpecialRim == 0,]$Made
+stan_data <- list(y = y, n = length(y))
+samples <- sampling(bernoulli_compiled, data = stan_data,  # we supply the model and data
+                    chains = 1, iter = 1200, warmup = 200) # for now, we won' worry about these
+theta_nor <- extract(samples)$theta
+
+# reduced rim
+y <- dat[dat$PlayerID == 1 & dat$SpecialRim == 1,]$Made
+stan_data <- list(y = y, n = length(y))
+samples <- sampling(bernoulli_compiled, data = stan_data,  # we supply the model and data
+                    chains = 1, iter = 1200, warmup = 200) # for now, we won' worry about these
+theta_red <- extract(samples)$theta
+```
+
+```{r}
+library(ggplot2)
+tmp1 <- data.frame(theta = theta_nor, rim = "normal")
+tmp2 <- data.frame(theta = theta_red, rim = "reduced")
+ggplot(rbind(tmp1, tmp2), aes(x = theta, group = rim, colour = rim, fill = rim)) + geom_density()
+```
+The plot already suggests that the probability that this player's shooting percentage decreased with rim reduction is very low. We can estimate it numerically from the samples:
+
+```{r}
+mcse(theta_nor > theta_red)
+mcse(theta_nor - theta_red)
+quantile(theta_nor - theta_red, probs = c(0.05, 1.00))
+```
+The probability that it decreased is so high that we get probability of 1. However, we should keep in mind that there should always be some uncertainty. The reason why we might get an exact 1 is sampling error (the difference from 1.0 is smaller than our sampling error and we don't have an accurate estimate of sampling error, because we haven't seen a 0).
+
+We can, with 95% probability claim that the player's shooting ability decreased at least 18%.
+
+**Important observation:** Once we have a model for a particular type of data, we can also use it to perform comparisons of two or more independent samples of that type. For example, we could use our model to estimate for each player the probability that that player is the best free-throw shooter.
+
+# Non-stationary free-throw shooting ability
+
+One of the possible flaws of our model in this scenario is that it assumes stationary ability. However, it is plausible that players warm up during the series of 60 shots or get tired, both of which might affect their ability to make a free-throw.
+
+$$y_i|\theta \sim_{iid} Bernoulli(\theta)$$
+
+The parameter $\beta$ can be interpreted as the change in log-odds due to one more shot in the sequence. A positive $\beta$ would indicate player's shoting ability increases as the sequence of shots progresses.
+
+We had a prior for $\theta$, but now we must also place a prior on $\beta$
+
+$$\theta \sim Beta(1, 1)$$
+
+We choose a completely flat prior over the real line
+
+$$\beta \propto 1$$
+
+While this is not a density, it will still result in a proper posterior.
+
+```{r}
+writeLines(readLines("bernoulli-logit.stan"))
+```
+
+From this Stan model we can learn the following new things:
+
+* **Default priors** If we don't explicity put a prior on a parameter, Stan will put a flat prior by default.
+
+* **Mathematical operations** Stan's syntax for mathematical operations is similar to most languages: + - / * & |
+
+* **Built-in functions** Stan has many built in functions (see manual). *inv_logit()* is one such function.
+
+Now we go through the exact same process of compiling the model and using it to sample from the posterior. The main difference now is that our new model has 2 paramters, $\theta$ and $\beta$:
+
+```{r}
+library(rstan)
+
+if (!file.exists("./Temp/bernoulli-logit.compiled")) {
+  bernoullilogit_compiled <- stan_model("bernoulli-logit.stan")
+  saveRDS(bernoulli_compiled, file = "./Temp/bernoulli-logit.compiled")
+} else {
+  bernoullilogit_compiled <- readRDS("./Temp/bernoulli-logit.compiled")  
+}
+
+
+y <- dat[dat$PlayerID == 1 & dat$SpecialRim == 0,]$Made
+stan_data <- list(y = y, n = length(y))
+samples <- sampling(bernoullilogit_compiled, data = stan_data,  # we supply the model and data
+                    chains = 1, iter = 1200, warmup = 200, seed = 0) # for now, we won' worry about these
+print(samples)
+theta <- extract(samples)$theta
+beta  <- extract(samples)$beta
+```
+
+The estimated probability of this player improving over time seems high. After closer inspection:
+```{r}
+mcse(beta > 0.0)
+```
+So, the probability is close to 90% (+/- 1%).
+
+Now we might be more closely interested in how much the % changes from the first shot to the last shot. For the first shot, $\beta$ has no effect, for the last, the effect is 59 times $\beta$.
+
+```{r}
+inv_logit <- function(x){1 / (1 + exp(-x))}
+i <- 0:59
+plot(inv_logit(i * mean(beta) + mean(theta)))
+```
+
+But this is only based on the mean of the posterior. As Bayesians we always have the entire posterior, so we can easily visualize or quantify the uncertainty in our estimates. We'll takea all the samples from the posterior and visualize their slopes:
+
+```{r}
+i   <- 0:59
+tmp <- NULL
+for (j in 1:length(theta)) {
+  tmp <- rbind(tmp, data.frame(Sample = j, 
+                               Shot = i, 
+                               Prob = inv_logit(i * mean(beta[j]) + mean(theta[j]))))
+}
+g1 <- ggplot(tmp, aes(x = Shot, y = Prob, group = Sample)) + geom_line(alpha = 0.1)
+plot(g1)
+```
+
+### Generated quantities block
+
+We will often want to do some post-processing of our parameters like we in this case computed how estimated ability changes with each shot. We can do such computation in R (or whatever language we are calling Stan from) but it is often easier to do it in Stan. That is the purpose of the *generated quantities* block:
+
+```{r}
+writeLines(readLines("bernoulli-logit2.stan"))
+```
+The above is our bernoulli-logit model with added post-processing of the results. The computation in the generated quantities block is done once per sample.

@@ -1,0 +1,116 @@
+\input{../LecturesCommon/preamble.tex}
+
+\title[Stan]{Probabilistic programming with Stan}
+
+\begin{document}
+
+\begin{frame}
+
+\centering
+\includegraphics[width=0.60\linewidth]{../LectureAssets/L03/Lecture03Cartoon}
+\end{frame}
+
+\input{../LecturesCommon/titleSlide.tex}
+
+\begin{frame}{Stan software for Bayesian inference}
+
+\bigskip
+
+\begin{center}
+\includegraphics[scale=0.3]{../LectureAssets/L03/stan_logo}
+\end{center}
+
+\bigskip
+
+\bigskip
+
+\textbf{Stan is composed of}
+
+\begin{enumerate}
+\item a probabilistic programming language,
+\item a math and auto-differentiation library,
+\item MCMC sampling-based inference algorithm.
+\end{enumerate}
+
+\bigskip
+
+We describe our model in Stan and Stan does the computation!
+
+\bigskip
+
+\bigskip
+
+\end{frame}
+
+
+\begin{frame}{Stan}
+
+\bigskip
+
+\begin{center}\url{http://mc-stan.org/}\end{center}
+
+\bigskip
+
+\textbf{Summary:}
+
+\begin{itemize}
+\item Software tool for Bayesian statistics,
+\item inference based on Hamiltonian Monte Carlo,
+\item written in C++ (Win, Mac, Linux),
+\item interfaces in R, Python, MATLAB, Julia, Stata, Mathematica, Scala...
+\item open source (BSD, PLv3),
+\item great documentation (manual, studies; see website),
+\item constant development, active community (\url{discourse.mc-stan.org/}).
+\end{itemize}
+
+\bigskip
+
+\end{frame}
+
+\begin{frame}{Stan - other functionality}
+
+\smallskip
+
+\textbf{Several inference algorithms:}
+
+\begin{itemize}
+\item NUTS (No-U-Turn Sampler, variant of HMC). 
+\item HMC.
+\item Structural approximation (Variational Inference, Laplace approximation).
+\item Classic gradient-based optimization (L-BFGS, BFGS).
+\end{itemize}
+
+\bigskip
+
+\textbf{User-friendly interfaces and tools in R:}
+
+\begin{itemize}
+\item \texttt{RStanArm}: Bayesian equivalents of \texttt{lm()}, \texttt{glm()},\texttt{polr()}...
+\item \texttt{ShinyStan}: Interactive summary of results and MCMC diagnostics.
+\item \texttt{loo}: Model evaluation and comparison.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Further reading}
+
+The Stan Language Reference manual contains a lot of valuable information both on how to use Stan and on standard statistical models written in Stan.
+
+\bigskip
+
+Stan/rstan reference sheet: \url{https://github.com/sieste/Stan_cheatsheet}
+
+\bigskip
+
+A good book on Bayesian statistics aimed at practitioners of statistics and not heavy on the math:
+
+\begin{scriptsize}
+\begin{itemize}
+\item[] Kruschke, John. Doing Bayesian data analysis: A tutorial with R, JAGS, and Stan. Academic Press, 2014.
+\end{itemize}
+\end{scriptsize}
+\end{frame}
+
+
+\end{document}
