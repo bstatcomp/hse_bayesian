@@ -172,7 +172,7 @@ theta_red <- extract(samples)$theta
 library(ggplot2)
 tmp1 <- data.frame(theta = theta_nor, rim = "normal")
 tmp2 <- data.frame(theta = theta_red, rim = "reduced")
-ggplot(rbind(tmp1, tmp2), aes(x = theta, group = rim, colour = rim, fill = rim)) + geom_density()
+ggplot(rbind(tmp1, tmp2), aes(x = theta, group = rim, colour = rim, fill = rim)) + geom_density(alpha=0.5)
 ```
 The plot already suggests that the probability that this player's shooting percentage decreased with rim reduction is very low. We can estimate it numerically from the samples:
 
@@ -250,7 +250,8 @@ Now we might be more closely interested in how much the % changes from the first
 ```{r}
 inv_logit <- function(x){1 / (1 + exp(-x))}
 i <- 0:59
-plot(inv_logit(i * mean(beta) + mean(theta)))
+p_hat <- inv_logit(i * mean(beta) + mean(theta))
+plot(p_hat, ylim=c(0,1))
 ```
 
 But this is only based on the mean of the posterior. As Bayesians we always have the entire posterior, so we can easily visualize or quantify the uncertainty in our estimates. We'll takea all the samples from the posterior and visualize their slopes:
@@ -263,7 +264,9 @@ for (j in 1:length(theta)) {
                                Shot = i, 
                                Prob = inv_logit(i * mean(beta[j]) + mean(theta[j]))))
 }
-g1 <- ggplot(tmp, aes(x = Shot, y = Prob, group = Sample)) + geom_line(alpha = 0.1)
+g1 <- ggplot() + 
+   geom_line(data = tmp, mapping = aes(x = Shot, y = Prob, group = Sample), alpha = 0.1) +
+   geom_point(data = data.frame(i, p_hat), mapping = aes(x = i, y = p_hat), color = 'blue', size = 2, alpha = 0.1)
 plot(g1)
 ```
 

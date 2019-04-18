@@ -4,7 +4,7 @@ data {
 }
 
 parameters {
-  real<lower=0,upper=1> theta;
+  real theta;
   real beta;
 }
 
