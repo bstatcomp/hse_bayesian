@@ -16,15 +16,63 @@ We have piglet weights for 8 different pigs (in kg):
 
 ```{r}
 dat <- read.csv("../Code/Datasets/poland.dat", sep = "\t", h = F)
-dat
 ```
-?
 
 # Estimate a pig's piglet weight
 
+Reasoning about the mean of the underlying process that generated the data is probably the most basic and common statistical task. Typically, a t-test is applied, but, as we've discussed in Lecture 02, Null-hypothesis significance tests offer only limited information and are difficult to base decisions on. Intuitively, we 
+
+So, instead of using a t.test, we'll create a Bayesian analogue to the t.test that will give us estimates of the parameter and probability of it being in a certain interval.
+
+### Bayesian analogue to the t.test
+
+Our data are real numbers
+
+$$y_i \in \mathbb{R}, i = 1..n$$
+
+and the t.test is based on the normal likelihood
+
+$$y_i|\mu, \sigma^2 \sim_\text{iid} N(\mu, \sigma^2).$$
+
+What is left is to choose priors. We'll use flat prior distributions, with the additional flexibility of setting the lowe and upper bounds:
+
+$$\mu \sim \text{Uniform}(\mu_\text{min}, \mu_\text{max})$$
+
+$$\sigma \sim \text{Uniform}(\sigma_\text{min}, \sigma_\text{max})$$
+
+
+```{r}
+eriks.bayesian.t.test <- function(y, lb = 0, ub = +Inf, 
+                                  mu_min =-1e4, mu_max = 1e4) {
+  
+  # load or compile model, if necessary
+  library(rstan)
+  if (!file.exists("./Temp/bayesian_ttest.compiled")) {
+    ttest_compiled <- stan_model("bayesian_ttest.stan")
+    saveRDS(ttest_compiled, file = "./Temp/bayesian_ttest.compiled")
+  } else {
+    ttest_compiled <- readRDS("./Temp/bayesian_ttest.compiled")  
+  }
+  
+  # prepare data
+  stan_data <- list(y = y, n = length(y), mu_min = mu_min, mu_max = mu_max)
+  
+  # sample from model
+  samples <- sampling(ttest_compiled, data = stan_data, verbose = F,
+                    chains = 1, iter = 1200, warmup = 200, seed = 0, refresh = 0)
+  mu <- extract(samples)$mu
+  
+    print(sprintf("Estimated mean and 95pct CI: %.2f (%.2f, %.2f)", mean(mu), quantile(mu, 0.025), quantile(mu, 0.975)))
+  print(sprintf("The true mean is in interval (%.2f, %.2f) with probability %.3f", lb, ub, mean(mu > lb & mu < ub)))
+}
+
+```
+
+
 ```{r}
 y <- dat[,1]
-y
+eriks.bayesian.t.test(y, lb = 2.5)
+
 ```
 
 # Compare two or more pigs' piglet weights

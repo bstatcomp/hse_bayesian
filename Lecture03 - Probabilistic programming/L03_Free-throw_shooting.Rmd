@@ -100,7 +100,8 @@ The data are passed to the Stan model as a list. The names of the list elements 
 
 ```{r}
 y <- dat[dat$PlayerID == 1 & dat$SpecialRim == 0,]$Made
-stan_data <- list(y = y, n = length(y))
+stan_data <- list(y = y,
+                  n = length(y))
 stan_data
 ```
 
@@ -120,6 +121,7 @@ Here are our 1000 samples from the posterior distribution of $\theta$:
 ```{r}
 theta <- extract(samples)$theta
 hist(theta, breaks = 50)
+plot(density(theta))
 ```
 
 If we are interested in a particular range of theta, we don't have to integrate. Instead, we just count. For example, what is the probability that this player is better than 75% free throw shooter?
@@ -224,7 +226,7 @@ library(rstan)
 
 if (!file.exists("./Temp/bernoulli-logit.compiled")) {
   bernoullilogit_compiled <- stan_model("bernoulli-logit.stan")
-  saveRDS(bernoulli_compiled, file = "./Temp/bernoulli-logit.compiled")
+  saveRDS(bernoullilogit_compiled, file = "./Temp/bernoulli-logit.compiled")
 } else {
   bernoullilogit_compiled <- readRDS("./Temp/bernoulli-logit.compiled")  
 }
@@ -253,7 +255,7 @@ i <- 0:59
 plot(inv_logit(i * mean(beta) + mean(theta)))
 ```
 
-But this is only based on the mean of the posterior. As Bayesians we always have the entire posterior, so we can easily visualize or quantify the uncertainty in our estimates. We'll takea all the samples from the posterior and visualize their slopes:
+But this is only based on the mean of the posterior. As Bayesians we always have the entire posterior, so we can easily visualize or quantify the uncertainty in our estimates. We'll take all the samples from the posterior and visualize their slopes:
 
 ```{r}
 i   <- 0:59
