@@ -1,0 +1,105 @@
+---
+title: "Homework"
+output: 
+  html_document:
+    toc: yes
+  html_notebook:
+    theme: united
+    toc: yes
+---
+
+This Homework is based on the Poisson-Gamma Exercise from Lecture 02 - Bayesian inference.
+
+It reads as follows:
+
+We have data on the number of goals scored from different European football leagues. For each game of each league we record the number of goals scored.
+
+```{r}
+dat <- read.csv("../Code/Datasets/football.csv", sep = ",", h = T)
+dat$Goals <- dat$FTHG + dat$FTAG
+ggplot(dat, aes(x = Goals, fill = Div)) + geom_histogram(binwidth = 1) + facet_wrap( ~ Div)
+```
+
+The Poisson-Gamma model is a reasonable first choice of model when modelling count data.
+
+$$y_i|\lambda \sim_\text{iid} Poisson(\lambda)$$
+$$\lambda \sim Gamma(a_0, b_0)$$
+The posterior for this model is
+
+$$\lambda|y_1,...,y_n \sim Gamma(a_0 + \sum y_i, b_0 + n)$$
+
+a. Use the above Poisson-Gamma model to estimate the expected number of goals per game in a league of your choice. What is the probability that the expected number of goals is greater than 2.5?
+b. Use the Poisson-Gamma model to compare the expected number of goals for two different leagues of your choice. That is, compute the probability that one league has a higher number of expected goals per game than the other.
+
+# Solution
+
+**I chose the English Premier League and Belgian 1st Division**
+
+```{r}
+y_E0 <- dat[dat$Div == "E0",]$Goals
+y_B1 <- dat[dat$Div == "B1",]$Goals
+summary(y_E0)
+summary(y_B1)
+```
+
+The Exercise already tells us which model to use, but we have the freedom to define our prior by selecting $\alpha_0$ and $\beta_0$. I chose 4 and 1.5, which represents the opinion that the expected number of goals is somewhere between 1 and 4:
+
+```{r}
+a0 = 4; b0 = 1.5
+p_prior <- function(x) {dgamma(x, shape = a0, rate = b0)}
+curve(p_prior, from = 0, to = 10)
+```
+
+This ends the modelling stage - we have everything we need to procede to computation and answer our questions.
+
+## Solution using the derived closed-form posterior
+
+In the instructions to this Exercise we are already given the information that the posterior is also Gamma, with certain parameters. We could also apply mathematics to derive this posterior ourselves and we find it in most sources of Bayesian conjugate priors, including Wikipedia. 
+
+
+```{r}
+# E0
+p_posterior <- function(x) {dgamma(x, shape = a0 + sum(y_E0), rate = b0 + length(y_E0))}
+curve(p_posterior, from = 0, to = 4, col = "blue")
+1 - pgamma(2.5, shape = a0 + sum(y_E0), rate = b0 + length(y_E0)) # integrating form 2.5 onwards
+
+p_posterior <- function(x) {dgamma(x, shape = a0 + sum(y_B1), rate = b0 + length(y_B1))}
+curve(p_posterior, from = 0, to = 4, col = "red")
+1 - pgamma(2.5, shape = a0 + sum(y_B1), rate = b0 + length(y_B1)) # integrating form 2.5 onwards
+```
+As we can see from the above plots and probabilities, it is very probable for both leagues that the expected number of goals per game is higher than 2.5.
+
+What remains is to compute the probability that E0 has higher expected number of goals than B1:
+
+```{r}
+ff <- function(x) {
+  # p_E0(x_E0|data) * F_B0(x_e0|data)
+  # we are basically calculating the density of p_E0 at some value times the probability that B0 has lower value (and then we integrate this over all positive values)
+  dgamma(x, shape = a0 + sum(y_E0), rate = b0 + length(y_E0)) * 
+    pgamma(x, shape = a0 + sum(y_B1), rate = b0 + length(y_B1)) 
+}
+
+integrate(ff, lower = 0, upper = Inf)
+```
+
+Those that are not familiar enough with integration to solve it this way, can also use a simple and easy understand Monte Carlo simulation approach. We draw samples from each posterior, compare them and count how many times one is greater than the other.
+
+```{r}
+m  <- 10000
+s1 <- rgamma(m, shape = a0 + sum(y_E0), rate = b0 + length(y_E0))
+s2 <- rgamma(m, shape = a0 + sum(y_B1), rate = b0 + length(y_B1)) 
+library(mcmcse)
+mcse(s1 > s2)
+```
+
+# Homework
+
+Install rstan (or Stan interface for some other language, if you prefer), implement the above Poisson-Gamma model in Stan and apply it to solve this exercise. You may choose the same leagues and you should get the same results (within approximation error).
+
+Note: All you need is the data and the choice of model and prior:
+
+The Poisson-Gamma model is a reasonable first choice of model when modelling count data.
+
+$$y_i|\lambda \sim_\text{iid} Poisson(\lambda)$$
+
+$$\lambda \sim Gamma(4, 1.5)$$
