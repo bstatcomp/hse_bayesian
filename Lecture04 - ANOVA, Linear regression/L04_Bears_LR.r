@@ -5,7 +5,6 @@ library(mcmcse)
 library(reshape2)
 library(rstan)
 
-theme_set( theme_grey() )
 dataset <- read.table("../code/datasets/bears.csv", sep = "\t", h = T)
 dataset <- dataset[,-2] # we won't use the month when measurements were taken
 
@@ -14,7 +13,6 @@ dataset <- dataset[,-2] # we won't use the month when measurements were taken
 # linear model -----------------------------------------------------------------
 tmp    <- stan_lm(WEIGHT ~ ., data = dataset, prior = NULL, chains = 1)
 output <- tmp$stanfit
-plot(output)
 
 post_pred <- rstanarm::posterior_predict(tmp)
 
@@ -40,3 +38,5 @@ g1 <- ggplot(dat,aes(x = mu, y = resid)) + xlab("predicted") + ylab("residual") 
   geom_point() + xlim(0,500) +
   geom_abline(aes(slope = 0, intercept = 0), lty = "dashed", colour = "red")
 plot(g1)
+
+plot(plot(output, par = names(dataset)[-8], include = T))

@@ -7,12 +7,12 @@ x <- rnorm(n)
 y <- 2.5 * x + 1 + rnorm(n)
 x <- c(x, -4, 3, 4) # outliers
 y <- c(y, 3, 1, 2)
-plot(x,y)
+plot(x,y, cex = 2, pch = 15)
 
 # OLS/ML
 line <- lm(y ~ x)
 print(line)
-plot(x,y)
+plot(x,y, cex = 2, pch = 15)
 abline(line, col = "red")
 
 stan_data <- list(n = length(y),
