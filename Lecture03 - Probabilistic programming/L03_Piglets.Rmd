@@ -71,7 +71,8 @@ eriks.bayesian.t.test <- function(y, lb = 0, ub = +Inf,
 
 ```{r}
 y <- dat[,1]
-eriks.bayesian.t.test(y, lb = 2.5)
+eriks.bayesian.t.test(y, lb = 2.5, ub = Inf)
+t.test(y, alt = "greater", mu = 2.5)
 
 ```
 
