@@ -52,4 +52,10 @@ model {
   // of K possible outcomes; effectively, it has only K-1 paramters, because
   // the probabilities need to sum up to 1.
   y ~ categorical(candy_probs);
+  
+  // NOTE: If we have n observations from a Bernoulli, we could instead
+  // of modelling each separately, model their sum a Binomially distributed r.v.
+  // (sum of iid Bernoulli is binomial with same theta). The end results would be
+  // equivalent... Similarly, we could model the sum of iid categorical r.v. with
+  // a multinomial distribution.
 }
