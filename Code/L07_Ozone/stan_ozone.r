@@ -89,11 +89,11 @@ smp <- sampling(model_fit,  data = stan_data,
 
 res_tr <- rbind(res_tr, data.frame(Method = "L2bayes", 
                                    Row = 1:nrow(dat_train),
-                                   Predicted = colMeans(tmp$pred),
+                                   Predicted = colMeans(smp$pred),
                                    True = dat_train$target))
 res_te <- rbind(res_te, data.frame(Method = "L2bayes", 
                                    Row = 1:nrow(dat_test),
-                                   Predicted = colMeans(tmp$pred_test),
+                                   Predicted = colMeans(smp$pred_test),
                                    True = dat_test$target))
 
 

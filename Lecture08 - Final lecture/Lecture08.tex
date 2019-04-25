@@ -1,0 +1,139 @@
+\input{../LecturesCommon/preamble.tex}
+% set new colors according to AMU design
+% http://dircom.univ-amu.fr/sites/dircom.univ-amu.fr/files/charte_graphique_generale_amu_0.pdf
+\definecolor{AMUDarkBlue}{RGB}{0,103,186}
+\definecolor{AMULightBlue}{RGB}{110,188,253}
+\definecolor{AMUYellow}{RGB}{246,189,23}
+%\usecolortheme[named=AMUDarkBlue]{structure}
+% top bar with section navigation
+%\setbeamercolor{palette tertiary}{bg=black,fg=white}
+% 2nd top bar with subsection navigation (only if subsection=true)
+%\setbeamercolor{palette secondary}{bg=AMUDarkBlue!50,fg=white}
+% title bar of each slide
+%\setbeamercolor{titlelike}{bg=AMUDarkBlue,fg=white}
+%\setbeamercolor{title}{bg=AMUDarkBlue,fg=white}
+%\setbeamercolor{subtitle}{fg=white}
+\setbeamercolor{block title}{bg=AMUDarkBlue,fg=white}
+\setbeamercolor{block body}{bg=AMUDarkBlue!30}
+\setbeamercolor{block title example}{bg=AMUYellow,fg=white}
+\setbeamercolor{block body example}{bg=AMUYellow!30}
+\setbeamercolor{block title alerted}{bg=red,fg=white}
+\setbeamercolor{block body alerted}{bg=red!30}
+% \setbeamercolor{colorbox}{bg=HUSand!30}
+% http://tex.stackexchange.com/questions/74303
+\usepackage{etoolbox}
+\AtBeginEnvironment{exampleblock}{%
+  \setbeamercolor{itemize item}{fg=AMUYellow!70}
+}
+\AtBeginEnvironment{alertblock}{%
+  \setbeamercolor{itemize item}{fg=red!70}
+}
+\AtBeginEnvironment{block}{%
+  \setbeamercolor{itemize item}{fg=AMUDarkBlue!70}
+}
+% \rowcolors{2}{Gray!30}{white}
+
+% apply default template partials
+\useinnertheme{rectangles}
+\useoutertheme[subsection=false]{miniframes}
+\setbeamertemplate{navigation symbols}{}
+% reset the footer: show slide numbers
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[colsep=1.5pt]{upper separation line foot}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+    leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
+    {\usebeamerfont{title in head/foot}\insertshorttitle}%
+    \,
+    {\usebeamerfont{author in head/foot}(\insertshortauthor)}%
+    \hfill
+    {\usebeamerfont{framenumber in head/foot}\textbf{\insertframenumber}}%
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[colsep=1.5pt]{lower separation line foot}
+  \end{beamercolorbox}
+}
+% emphasizing means text in default accent color
+\renewcommand{\emph}[1]{\textcolor{structure}{#1}}
+
+% \usepackage{microtype} % enable this for improved text typesetting
+\usepackage{hyperref} % this is of \href{}{} or \url{}
+\usepackage{booktabs} % this is for \midrule \toprule etc in tables
+
+
+\usetikzlibrary{bayesnet}
+
+\title[Final lecture]{Final lecture}
+
+
+\begin{document}
+
+\input{../LecturesCommon/titleSlide.tex}
+
+
+
+
+\begin{frame}{Further reading}
+
+\begin{scriptsize}
+
+\begin{itemize}
+
+\item Andrew Gelman, Jennifer Hill, and Masanao Yajima. Why we (usually) don't have to worry about multiple comparisons. Journal of Research on Educational Effectiveness, 5(2), 189-211, 2012.
+
+\item Andrew Gelman, Jessica Hwang, and Aki Vehtari. Understanding predictive
+information criteria for Bayesian models. Statistics and Computing, 24(6):
+997–1016, 2014.
+
+\item Aki Vehtari, Andrew Gelman, and Jonah Gabry. Practical Bayesian model
+evaluation using leave-one-out cross-validation and WAIC. Statistics and
+Computing, 27(5):1413–1432, 2017.
+
+\item John K Kruschke. Bayesian estimation supersedes the t test. Journal of Experimental
+Psychology: General, 142(2):573, 2013.
+
+\end{itemize}
+\end{scriptsize}
+\end{frame}
+
+\begin{frame}{Topics we've covered}
+
+\begin{itemize}
+\item Bayesian view of probability.
+\item Bayesian learning: Bayes' theorem, prior, likelihood, posterior.
+\item Computation: conjugacy, MC, MCMC (semi-conjugacy, Gibbs).
+\item MCMC in practice: autocovariance, approximation error, traceplot, effective sample size.
+\item Fitting, overfitting.
+\item Some standard models: binomial test for proportions, t-test \& ANOVA (equivalent), lm, glm, mixed-effects modelling...
+\item Software: Stan, \texttt{rstanarm}, \texttt{mcmcse}...
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Where do we go from here}
+
+\begin{small}
+  \begin{block}{Applying Bayesian statistics as a research tool in your field}
+    \begin{itemize}
+    \item Kruschke: Doing Bayesian data analysis.
+    \item McElreath: Statistical Rethinking: A Bayesian Course with Examples in R and Stan.
+    \item Learn R, rstanarm, Stan.
+    \item (Gelman...: Bayesian data analysis.)
+    \end{itemize}
+  \end{block}
+  
+  \begin{alertblock}{Specializing in Bayesian statistics}
+    \begin{itemize}
+      \item Ross: First course in probability theory.
+      \item Kadane: Principles of uncertainty (subjective Bayesian view).
+      \item Robert: The Bayesian choice (objective Bayesian view).
+    \end{itemize}
+
+  \end{alertblock}
+
+\end{small}
+
+\end{frame}
+
+
+\end{document}
