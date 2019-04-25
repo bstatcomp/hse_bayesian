@@ -21,7 +21,7 @@ final <- NULL
 
 for (i in 1:nrow(predictions)) {
   x <- predictions[i,]
-  tmp <- table(cut(x, breaks = c(seq(0, 150, 10), Inf))) 
+  tmp <- table(cut(x, breaks = c(seq(-10, 150, 10), Inf))) 
   tmp <- tmp/sum(tmp) 
   final <- rbind(final, tmp)
 }
